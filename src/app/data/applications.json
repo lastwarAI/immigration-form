@@ -1,0 +1,65 @@
+[
+  {
+    "nickname": "PENGUIN",
+    "currentServer": "16",
+    "targetServer": "20",
+    "power": "234234322",
+    "discordId": "ddd",
+    "note": "강서버",
+    "createdAt": "2025-07-28T08:29:38.254Z"
+  },
+  {
+    "nickname": "Art",
+    "currentServer": "20",
+    "targetServer": "20",
+    "power": "33452342",
+    "discordId": "ㅇㅇㄹㅈ",
+    "note": "원래 서버",
+    "createdAt": "2025-07-28T08:44:13.584Z"
+  },
+  {
+    "nickname": "fallsky",
+    "currentServer": "20",
+    "targetServer": "260",
+    "power": "3억",
+    "discordId": "비밀",
+    "note": "그냥",
+    "createdAt": "2025-07-28T08:44:13.584Z"
+  },
+  {
+    "nickname": "snowman 상희",
+    "currentServer": "20",
+    "targetServer": "1",
+    "power": "5억 고래",
+    "discordId": "비밀",
+    "note": "혼자있고싶어",
+    "createdAt": "2025-07-28T08:44:13.584Z"
+  },
+  {
+    "nickname": "HAMSTER",
+    "currentServer": "20",
+    "targetServer": "1800",
+    "power": "2억",
+    "note": "신서버의 신",
+    "image": null,
+    "createdAt": "2025-07-28T09:59:59.508Z"
+  },
+  {
+    "nickname": "HAMSTER",
+    "currentServer": "20",
+    "targetServer": "1800",
+    "power": "2억",
+    "note": "신서버의 신",
+    "image": null,
+    "createdAt": "2025-07-28T10:05:55.694Z"
+  },
+  {
+    "nickname": "Hedgehog",
+    "currentServer": "20",
+    "targetServer": "1802",
+    "power": "2억",
+    "note": "신서버의 신",
+    "image": "1753699713089_화면_캡처_2025-07-16_215735.png",
+    "createdAt": "2025-07-28T10:48:33.095Z"
+  }
+]
