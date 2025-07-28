@@ -1,7 +1,8 @@
+// src/app/api/submit/route.ts 의 전체 코드
+
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir, readFile } from 'fs/promises';
-import path from 'path';
-import { put } from '@vercel/blob'; // Vercel Blob의 put 함수 임포트
+import { put } from '@vercel/blob';
+import { kv } from '@vercel/kv'; // Vercel KV 임포트
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,19 +19,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: '필수 항목이 누락되었습니다.' }, { status: 400 });
     }
 
-    let imageUrl: string | null = null; // 이미지의 'URL'을 저장할 변수
-
-    // 파일이 있고, 크기가 0보다 큰 경우에만 업로드 로직 실행
+    let imageUrl: string | null = null;
     if (file && file.size > 0) {
-      // 파일명을 고유하게 만들기 위해 타임스탬프와 원본 파일명 조합
       const filename = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-
-      // Vercel Blob에 파일 업로드
-      const blob = await put(filename, file, {
-        access: 'public', // 생성된 URL로 누구나 파일에 접근할 수 있도록 설정
-      });
-
-      // 업로드 후 Vercel Blob이 반환해준 고유하고 영구적인 URL을 변수에 저장
+      const blob = await put(filename, file, { access: 'public' });
       imageUrl = blob.url;
     }
 
@@ -40,31 +32,27 @@ export async function POST(req: NextRequest) {
       targetServer,
       power,
       note,
-      image: imageUrl, // JSON 파일에는 이제 파일명이 아닌 '전체 URL'이 저장됨
+      image: imageUrl,
       createdAt: new Date().toISOString(),
     };
-    
-    // JSON 파일을 읽고 쓰는 로직은 이전과 동일
-    const dataDir = path.join(process.cwd(), 'src', 'app', 'data');
-    await mkdir(dataDir, { recursive: true });
-    const dataFilePath = path.join(dataDir, 'applications.json');
-    
-    let applications = [];
-    try {
-      const fileContent = await readFile(dataFilePath, 'utf-8');
-      applications = JSON.parse(fileContent);
-    } catch (e) {
-      if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e;
-    }
 
+    // --- 여기가 바뀝니다: JSON 파일 대신 Vercel KV 사용 ---
+    
+    // 1. 'applications' 라는 키로 저장된 기존 신청서 목록을 가져옵니다.
+    const applications = await kv.get<any[]>('applications') || [];
+
+    // 2. 새로운 신청서를 목록에 추가합니다.
     applications.push(newEntry);
-    await writeFile(dataFilePath, JSON.stringify(applications, null, 2));
+
+    // 3. 'applications' 키에 업데이트된 전체 목록을 다시 저장합니다.
+    await kv.set('applications', applications);
+    
+    // --- 변경 끝 ---
 
     return NextResponse.json({ success: true, message: '신청이 성공적으로 제출되었습니다!' });
 
   } catch (err) {
     console.error('업로드 처리 오류:', err);
-    // Vercel Blob 관련 에러도 여기서 잡힘
     const errorMessage = err instanceof Error ? err.message : '서버 오류가 발생했습니다.';
     return NextResponse.json({ success: false, message: errorMessage }, { status: 500 });
   }
