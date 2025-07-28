@@ -1,17 +1,8 @@
 'use client';
 
 import { useEffect, useState, FormEvent } from 'react';
+import type { Application } from '@/types'; // 여기에 있던 타입 정의를 지우고, 공용 타입을 임포트합니다.
 
-// Application 타입 정의
-type Application = {
-  nickname: string;
-  currentServer: string;
-  targetServer: string;
-  power: string;
-  note: string;
-  image?: string | null; // 이제 URL이므로 string | null 타입
-  createdAt: string;
-};
 
 export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false);

@@ -1,7 +1,8 @@
-// src/app/api/applications/route.ts 의 전체 코드
+// src/app/api/applications/route.ts 전체 코드
 
 import { NextRequest, NextResponse } from 'next/server';
-import { kv } from '@vercel/kv'; // Vercel KV 임포트
+import { kv } from '@vercel/kv';
+import type { Application } from '@/types'; // 공용 타입을 임포트합니다.
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "lastwar2025";
 
@@ -13,12 +14,9 @@ export async function GET(req: NextRequest) {
   }
   
   try {
-    // --- 여기가 바뀝니다: JSON 파일 대신 Vercel KV 사용 ---
-
-    // 'applications' 키로 저장된 데이터를 가져옵니다. 데이터가 없으면 빈 배열([])을 반환합니다.
-    const applications = await kv.get('applications') || [];
-    
-    // --- 변경 끝 ---
+    // --- 여기가 수정된 부분입니다 ---
+    const applications = await kv.get<Application[]>('applications') || [];
+    // --- 수정 끝 ---
     
     return NextResponse.json(applications);
   } catch (err) {

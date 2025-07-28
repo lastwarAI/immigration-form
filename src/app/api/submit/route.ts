@@ -1,13 +1,14 @@
-// src/app/api/submit/route.ts 의 전체 코드
+// src/app/api/submit/route.ts 전체 코드
 
 import { NextRequest, NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
-import { kv } from '@vercel/kv'; // Vercel KV 임포트
+import { kv } from '@vercel/kv';
+import type { Application } from '@/types'; // 공용 타입을 임포트합니다. (@/는 src/ 폴더를 의미)
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
-
+    // ... (파일 및 폼 데이터 가져오는 부분은 이전과 동일)
     const nickname = formData.get('nickname') as string;
     const currentServer = formData.get('currentServer') as string;
     const targetServer = formData.get('targetServer') as string;
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
       imageUrl = blob.url;
     }
 
-    const newEntry = {
+    const newEntry: Application = { // 여기서도 타입을 명시해주는 것이 좋습니다.
       nickname,
       currentServer,
       targetServer,
@@ -36,21 +37,15 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
     };
 
-    // --- 여기가 바뀝니다: JSON 파일 대신 Vercel KV 사용 ---
+    // --- 여기가 수정된 부분입니다 ---
+    // any[] 대신 Application[] 타입을 명확하게 지정합니다.
+    const applications = await kv.get<Application[]>('applications') || [];
+    // --- 수정 끝 ---
     
-    // 1. 'applications' 라는 키로 저장된 기존 신청서 목록을 가져옵니다.
-    const applications = await kv.get<any[]>('applications') || [];
-
-    // 2. 새로운 신청서를 목록에 추가합니다.
     applications.push(newEntry);
-
-    // 3. 'applications' 키에 업데이트된 전체 목록을 다시 저장합니다.
     await kv.set('applications', applications);
-    
-    // --- 변경 끝 ---
 
     return NextResponse.json({ success: true, message: '신청이 성공적으로 제출되었습니다!' });
-
   } catch (err) {
     console.error('업로드 처리 오류:', err);
     const errorMessage = err instanceof Error ? err.message : '서버 오류가 발생했습니다.';
