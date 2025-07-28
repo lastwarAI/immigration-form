@@ -47,14 +47,14 @@ export default function Home() {
   return (
     <main className="max-w-xl mx-auto p-6 bg-white shadow-md rounded-lg my-8">
       <div className="text-center mb-6">
-        <h1 className="text-3xl font-bold">20서버 이민 신청</h1>
-        <p className="text-gray-600 mt-2">서버 이전을 위한 신청서를 작성해주세요.</p>
+        <h1 className="text-3xl font-bold">20서버 이민 신청 Server 20 immigration application</h1>
+        <p className="text-gray-600 mt-2">서버 이전을 위한 신청서를 작성해주세요. Please fill out the application form for server transfer.</p>
       </div>
 
       <form className="space-y-6" onSubmit={handleSubmit}>
         <div>
           <label htmlFor="nickname" className="block text-sm font-medium text-gray-700 mb-1">
-            닉네임
+            닉네임 Nickname
           </label>
           <input
             id="nickname"
@@ -67,7 +67,7 @@ export default function Home() {
 
         <div>
           <label htmlFor="currentServer" className="block text-sm font-medium text-gray-700 mb-1">
-            현재 서버
+            현재 서버 Current server
           </label>
           <input
             id="currentServer"
@@ -80,7 +80,7 @@ export default function Home() {
 
         <div>
           <label htmlFor="targetServer" className="block text-sm font-medium text-gray-700 mb-1">
-            희망 서버
+            희망 서버 Target server
           </label>
           <input
             id="targetServer"
@@ -93,7 +93,7 @@ export default function Home() {
 
         <div>
           <label htmlFor="power" className="block text-sm font-medium text-gray-700 mb-1">
-            전투력
+            전투력 Power
           </label>
           <input
             id="power"
@@ -106,7 +106,7 @@ export default function Home() {
 
         <div>
           <label htmlFor="note" className="block text-sm font-medium text-gray-700 mb-1">
-            이민 사유 또는 메모
+            이민 사유 또는 메모 Reason and comment
           </label>
           <textarea
             id="note"
@@ -118,7 +118,7 @@ export default function Home() {
 
         <div>
           <label htmlFor="file" className="block text-sm font-medium text-gray-700 mb-1">
-            전투력 스크린샷
+            전투력 스크린샷 Image
           </label>
           <input
             id="file"

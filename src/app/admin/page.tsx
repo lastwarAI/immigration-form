@@ -118,25 +118,65 @@ export default function AdminPage() {
   // 관리자 페이지 목록 렌더링 부분
   return (
     <main className="max-w-6xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">20서버 이민 신청자 목록</h1>
-        {/* --- 리셋 버튼 UI 추가 --- */}
-        <button
-          onClick={handleReset}
-          disabled={isLoading}
-          className="bg-red-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-red-700 disabled:bg-gray-400"
-        >
-          전체 초기화
-        </button>
-        {/* --- 추가 끝 --- */}
-      </div>
-
-      {/* --- 에러 메시지 표시 영역 추가 --- */}
-      {error && <p className="text-red-500 bg-red-50 p-3 rounded-md mb-4">{error}</p>}
-      {/* --- 추가 끝 --- */}
-
-      <div className="overflow-x-auto shadow-md rounded-lg">
-        {/* ... (테이블 렌더링 부분은 이전과 동일) ... */}
+            <div className="overflow-x-auto shadow-md rounded-lg">
+        <table className="w-full table-auto border-collapse">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border px-4 py-2 text-left text-sm font-medium text-gray-600">번호 No.</th>
+              <th className="border px-4 py-2 text-left text-sm font-medium text-gray-600">닉네임 Nickname</th>
+              <th className="border px-4 py-2 text-left text-sm font-medium text-gray-600">현재 서버 Current server</th>
+              <th className="border px-4 py-2 text-left text-sm font-medium text-gray-600">희망 서버 Target server</th>
+              <th className="border px-4 py-2 text-left text-sm font-medium text-gray-600">전투력 Power</th>
+              <th className="border px-4 py-2 text-left text-sm font-medium text-gray-600">메모 Comment</th>
+              <th className="border px-4 py-2 text-sm font-medium text-gray-600">이미지 Image</th>
+              <th className="border px-4 py-2 text-left text-sm font-medium text-gray-600">신청일 Date</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white">
+            {/* 데이터가 없을 때 메시지를 보여주는 부분 */}
+            {data.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="text-center py-10 text-gray-500">
+                  아직 접수된 신청서가 없습니다. There are no submitted applications yet.
+                </td>
+              </tr>
+            ) : (
+              /* 데이터가 있을 때 목록을 렌더링하는 부분 */
+              data.map((row, i) => (
+                <tr key={row.createdAt} className="hover:bg-gray-50">
+                  <td className="border px-4 py-2 text-center">{data.length - i}</td>
+                  <td className="border px-4 py-2 font-medium text-gray-800">{row.nickname}</td>
+                  <td className="border px-4 py-2 text-center">{row.currentServer}</td>
+                  <td className="border px-4 py-2 text-center">{row.targetServer}</td>
+                  <td className="border px-4 py-2 text-right">{row.power}</td>
+                  <td className="border px-4 py-2 text-sm text-gray-700">{row.note}</td>
+                  <td className="border px-4 py-2 text-center align-middle">
+                    {row.image ? (
+                      <a href={row.image} target="_blank" rel="noopener noreferrer" title="클릭해서 크게 보기">
+                        <img
+                          src={row.image}
+                          alt={`${row.nickname}의 스크린샷`}
+                          className="h-20 w-auto mx-auto object-contain p-1 border rounded-md transition-transform duration-200 hover:scale-110"
+                        />
+                      </a>
+                    ) : (
+                      <span className="text-gray-400 text-sm">없음 None</span>
+                    )}
+                  </td>
+                  <td className="border px-4 py-2 text-sm text-gray-600">
+                    {new Date(row.createdAt).toLocaleString('ko-KR', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </main>
   );

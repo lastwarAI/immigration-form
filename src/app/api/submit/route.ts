@@ -45,10 +45,10 @@ export async function POST(req: NextRequest) {
     applications.push(newEntry);
     await kv.set('applications', applications);
 
-    return NextResponse.json({ success: true, message: '신청이 성공적으로 제출되었습니다!' });
+    return NextResponse.json({ success: true, message: '신청이 성공적으로 제출되었습니다! Thank you! Your application was submitted successfully!' });
   } catch (err) {
     console.error('업로드 처리 오류:', err);
-    const errorMessage = err instanceof Error ? err.message : '서버 오류가 발생했습니다.';
+    const errorMessage = err instanceof Error ? err.message : '서버 오류가 발생했습니다. A server error occurred.';
     return NextResponse.json({ success: false, message: errorMessage }, { status: 500 });
   }
 }
