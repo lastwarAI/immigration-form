@@ -1,14 +1,18 @@
-// src/types.ts 전체 코드 (새 항목 추가됨)
+// src/types.ts 전체 코드 (isConfirmed와 status 추가됨)
 
 export type Application = {
-  // --- 기존 항목 이름도 명확하게 변경 및 신규 항목 추가 ---
   nickname: string;
-  currentServerAndAlliance: string; // '현재 서버' -> '현재 서버 및 연맹'
-  heroPower: string;                // '전투력' -> '총 영웅 전투력'
-  mainSquad: string;                // << 신규 >> 주력 군종 및 전투력
-  immigrationGrade: string;         // << 신규 >> 이민 등급
-  targetAlliance: string;           // << 신규 >> 목표 연맹
+  currentServerAndAlliance: string; 
+  heroPower: string;                
+  mainSquad: string;                
+  immigrationGrade: string;         
+  targetAlliance: string;           
   note: string;
   image?: string | null;
   createdAt: string;
+
+  // --- ▼▼▼ 신규 항목 2개 추가 ▼▼▼ ---
+  isConfirmed: boolean; // 1번 기능: 확인 여부 (체크박스)
+  status: '대기중' | '승인' | '거절'; // 2번 기능: 신청 상태 (드롭다운)
+  // --- ▲▲▲ 여기까지 ▲▲▲ ---
 };
