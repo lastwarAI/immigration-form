@@ -1,27 +1,15 @@
-// src/app/admin/page.tsx 전체 코드 (닉네임만 틀 고정)
+// src/app/admin/page.tsx 전체 코드 (닉네임 틀 고정 가독성 문제 해결)
 
 'use client';
 
 import React, { useEffect, useState, FormEvent, useMemo } from 'react';
 import type { Application } from '@/types';
 
+// 컴포넌트, 타입, 상수 정의는 변경 없습니다.
 const CommentIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mx-auto text-gray-500 hover:text-blue-600 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}> <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /> </svg> );
 const CommentModal = ({ isOpen, onClose, comment }: { isOpen: boolean; onClose: () => void; comment: string; }) => { if (!isOpen) return null; return ( <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4"> <div className="bg-white rounded-lg shadow-xl w-full max-w-lg"> <div className="p-4 border-b flex justify-between items-center"><h3 className="text-lg font-semibold">코멘트 / Comment</h3><button onClick={onClose} className="text-gray-400 hover:text-gray-600 font-bold text-xl">×</button></div> <div className="p-6 whitespace-pre-wrap text-gray-700 max-h-80 overflow-y-auto">{comment}</div> <div className="p-4 border-t text-right"><button onClick={onClose} className="bg-gray-200 px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-300">닫기 / Close</button></div> </div> </div> ); };
 type SortConfig = { key: keyof Application | null; direction: 'ascending' | 'descending'; };
-
-// --- ▼▼▼ 여기가 수정된 부분입니다 (테이블 순서 변경) ▼▼▼ ---
-const TABLE_COLUMNS: { key: keyof Application; label: string; width: string; isNumeric?: boolean }[] = [
-  // 닉네임은 별도 처리하므로 여기서 제외
-  { key: 'isConfirmed', label: '확인<br/>Done', width: 'w-16'},
-  { key: 'status', label: '상태<br/>Status', width: 'w-36'},
-  { key: 'currentServerAndAlliance', label: '서버/연맹<br/>Server/Alliance', width: 'w-32' },
-  { key: 'heroPower', label: '영웅 전투력<br/>Hero Power', width: 'w-32', isNumeric: true },
-  { key: 'mainSquad', label: '주력 군종<br/>Main Squad', width: 'w-40' },
-  { key: 'immigrationGrade', label: '이민 등급<br/>Grade', width: 'w-24' },
-  { key: 'targetAlliance', label: '목표 연맹<br/>Target Alliance', width: 'w-32' },
-  { key: 'createdAt', label: '신청일<br/>Date', width: 'w-48' },
-];
-// --- ▲▲▲ 여기까지 ▲▲▲ ---
+const TABLE_COLUMNS: { key: keyof Application; label: string; width: string; isNumeric?: boolean }[] = [ { key: 'isConfirmed', label: '확인<br/>Done', width: 'w-16'}, { key: 'status', label: '상태<br/>Status', width: 'w-36'}, { key: 'currentServerAndAlliance', label: '서버/연맹<br/>Server/Alliance', width: 'w-32' }, { key: 'heroPower', label: '영웅 전투력<br/>Hero Power', width: 'w-32', isNumeric: true }, { key: 'mainSquad', label: '주력 군종<br/>Main Squad', width: 'w-40' }, { key: 'immigrationGrade', label: '이민 등급<br/>Grade', width: 'w-24' }, { key: 'targetAlliance', label: '목표 연맹<br/>Target Alliance', width: 'w-32' }, { key: 'createdAt', label: '신청일<br/>Date', width: 'w-48' }, ];
 
 export default function AdminPage() {
   const [passwordInput, setPasswordInput] = useState('');
@@ -56,29 +44,20 @@ export default function AdminPage() {
         <table className="min-w-[1200px] w-full border-collapse text-xs">
           <thead className="bg-gray-100">
             <tr>
-              {/* --- ▼▼▼ 여기가 수정된 부분입니다 (헤더 순서 및 sticky 변경) ▼▼▼ --- */}
-              <th className="border-b px-2 py-2 text-left font-medium text-gray-600 w-32 sticky left-0 bg-gray-100 z-10">
-                <button onClick={() => requestSort('nickname')} className='w-full text-left'>닉네임<br/>Nickname{sortConfig.key === 'nickname' ? (sortConfig.direction === 'ascending' ? ' ▲' : ' ▼') : ''}</button>
-              </th>
-              
-              {TABLE_COLUMNS.map(col => (
-                <th key={col.key} className={`border-b px-2 py-2 font-medium text-gray-600 ${col.width} ${col.isNumeric ? 'text-right' : 'text-left'}`}>
-                  <button onClick={() => requestSort(col.key)} className="w-full h-full text-inherit" dangerouslySetInnerHTML={{ __html: col.label + (sortConfig.key === col.key ? (sortConfig.direction === 'ascending' ? ' ▲' : ' ▼') : '') }} />
-                </th>
-              ))}
-
+              <th className="border-b px-2 py-2 text-left font-medium text-gray-600 w-32 sticky left-0 bg-gray-100 z-10"><button onClick={() => requestSort('nickname')} className='w-full text-left'>닉네임<br/>Nickname{sortConfig.key === 'nickname' ? (sortConfig.direction === 'ascending' ? ' ▲' : ' ▼') : ''}</button></th>
+              {TABLE_COLUMNS.map(col => (<th key={col.key} className={`border-b px-2 py-2 font-medium text-gray-600 ${col.width} ${col.isNumeric ? 'text-right' : 'text-left'}`}><button onClick={() => requestSort(col.key)} className="w-full h-full text-inherit" dangerouslySetInnerHTML={{ __html: col.label + (sortConfig.key === col.key ? (sortConfig.direction === 'ascending' ? ' ▲' : ' ▼') : '') }} /></th>))}
               <th className="border-b px-2 py-2 font-medium text-gray-600 w-16">코멘트<br/>Note</th>
               <th className="border-b px-2 py-2 font-medium text-gray-600 w-24">이미지<br/>Image</th>
               <th className="border-b px-2 py-2 font-medium text-gray-600 w-20">관리<br/>Manage</th>
-              {/* --- ▲▲▲ 여기까지 ▲▲▲ --- */}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {sortedData.map(row => (
-              <tr key={row.createdAt} className={`hover:bg-gray-50 ${row.isConfirmed ? 'bg-green-50' : ''}`}>
-                {/* --- ▼▼▼ 여기가 수정된 부분입니다 (내용 순서 및 sticky 변경) ▼▼▼ --- */}
-                <td className="px-2 py-2 font-medium sticky left-0 bg-inherit z-10">{row.nickname}</td>
-
+              // --- ▼▼▼ 여기가 수정된 부분입니다 (tr에 배경색 지정) ▼▼▼ ---
+              <tr key={row.createdAt} className={`${row.isConfirmed ? 'bg-green-50' : 'bg-white'} hover:bg-gray-50`}>
+                {/* --- ▼▼▼ 여기가 수정된 부분입니다 (sticky 셀에 bg-inherit 추가) ▼▼▼ --- */}
+                <td className="px-2 py-2 font-medium sticky left-0 z-10 bg-inherit">{row.nickname}</td>
+                
                 <td className="px-2 py-2 text-center"><input type="checkbox" checked={row.isConfirmed} onChange={(e) => handleUpdate(row.createdAt, { isConfirmed: e.target.checked })} className="h-5 w-5" /></td>
                 <td className="px-2 py-2 text-center"><select value={row.status} onChange={(e) => handleUpdate(row.createdAt, { status: e.target.value as Application['status']})} className={`w-full p-1 rounded ${row.status === '승인' ? 'bg-green-200' : row.status === '거절' ? 'bg-red-200' : 'bg-yellow-200'}`}><option value="대기중">대기중 / Pending</option><option value="승인">승인 / Approved</option><option value="거절">거절 / Rejected</option></select></td>
                 <td className="px-2 py-2 text-right">{row.currentServerAndAlliance}</td>
@@ -87,11 +66,9 @@ export default function AdminPage() {
                 <td className="px-2 py-2">{row.immigrationGrade}</td>
                 <td className="px-2 py-2">{row.targetAlliance}</td>
                 <td className="px-2 py-2">{new Date(row.createdAt).toLocaleString('ko-KR')}</td>
-
                 <td className="px-2 py-2 text-center">{row.note && (<button onClick={() => openCommentModal(row.note)} className="w-full"><CommentIcon /></button>)}</td>
                 <td className="px-2 py-2 text-center align-middle">{row.image ? <a href={row.image} target="_blank" rel="noopener noreferrer"><img src={row.image} alt="ss" className="h-16 w-auto mx-auto"/></a> : 'None'}</td>
                 <td className="px-2 py-2 text-center"><button onClick={() => handleDelete(row.createdAt)} className="bg-red-500 text-white px-2 py-1 rounded">Delete</button></td>
-                 {/* --- ▲▲▲ 여기까지 ▲▲▲ --- */}
               </tr>
             ))}
             {sortedData.length === 0 && (<tr><td colSpan={TABLE_COLUMNS.length + 5} className="text-center py-10 text-gray-500">데이터가 없습니다. / No data found.</td></tr>)}
