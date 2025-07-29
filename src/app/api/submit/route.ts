@@ -1,22 +1,27 @@
-// src/app/api/submit/route.ts 전체 코드
+// src/app/api/submit/route.ts 전체 코드 (새 항목 처리 로직 추가됨)
 
 import { NextRequest, NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
 import { kv } from '@vercel/kv';
-import type { Application } from '@/types'; // 공용 타입을 임포트합니다. (@/는 src/ 폴더를 의미)
+import type { Application } from '@/types';
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
-    // ... (파일 및 폼 데이터 가져오는 부분은 이전과 동일)
+    
+    // --- ▼▼▼ 새로운 폼 데이터 가져오기 (이름도 types.ts와 일치시킴) ▼▼▼ ---
     const nickname = formData.get('nickname') as string;
-    const currentServer = formData.get('currentServer') as string;
-    const targetServer = formData.get('targetServer') as string;
-    const power = formData.get('power') as string;
+    const currentServerAndAlliance = formData.get('currentServer') as string; // 이름 변경
+    const heroPower = formData.get('power') as string;                      // 이름 변경
+    const mainSquad = formData.get('mainSquad') as string;                  // << 신규 >>
+    const immigrationGrade = formData.get('immigrationGrade') as string;    // << 신규 >>
+    const targetAlliance = formData.get('targetAlliance') as string;        // << 신규 >>
     const note = formData.get('note') as string;
     const file = formData.get('file') as File | null;
+    // --- ▲▲▲ 여기까지 ▲▲▲ ---
 
-    if (!nickname || !currentServer || !targetServer || !power) {
+    // 유효성 검사 항목에 새로운 필수 필드 추가
+    if (!nickname || !currentServerAndAlliance || !heroPower || !mainSquad || !immigrationGrade || !targetAlliance || !file || file.size === 0) {
       return NextResponse.json({ message: '필수 항목이 누락되었습니다.' }, { status: 400 });
     }
 
@@ -27,20 +32,21 @@ export async function POST(req: NextRequest) {
       imageUrl = blob.url;
     }
 
-    const newEntry: Application = { // 여기서도 타입을 명시해주는 것이 좋습니다.
+    // --- ▼▼▼ 저장할 객체에 새로운 데이터 추가 (types.ts와 일치시킴) ▼▼▼ ---
+    const newEntry: Application = {
       nickname,
-      currentServer,
-      targetServer,
-      power,
+      currentServerAndAlliance,
+      heroPower,
+      mainSquad,
+      immigrationGrade,
+      targetAlliance,
       note,
       image: imageUrl,
       createdAt: new Date().toISOString(),
     };
-
-    // --- 여기가 수정된 부분입니다 ---
-    // any[] 대신 Application[] 타입을 명확하게 지정합니다.
+    // --- ▲▲▲ 여기까지 ▲▲▲ ---
+    
     const applications = await kv.get<Application[]>('applications') || [];
-    // --- 수정 끝 ---
     
     applications.push(newEntry);
     await kv.set('applications', applications);
