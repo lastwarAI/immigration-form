@@ -1,4 +1,4 @@
-// src/app/api/submit/route.ts 전체 코드 (isConfirmed와 status 초기값 추가됨)
+// src/app/api/submit/route.ts 전체 코드 (note 유효성 검사 다시 추가)
 
 import { NextRequest, NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
@@ -9,7 +9,6 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     
-    // 폼 데이터 가져오기 (이전과 동일)
     const nickname = formData.get('nickname') as string;
     const currentServerAndAlliance = formData.get('currentServer') as string;
     const heroPower = formData.get('power') as string;
@@ -19,9 +18,11 @@ export async function POST(req: NextRequest) {
     const note = formData.get('note') as string;
     const file = formData.get('file') as File | null;
 
-    if (!nickname || !currentServerAndAlliance || !heroPower || !mainSquad || !immigrationGrade || !targetAlliance || !file || file.size === 0) {
+    // --- ▼▼▼ 여기가 수정된 부분입니다 (!note 검사 다시 추가) ▼▼▼ ---
+    if (!nickname || !currentServerAndAlliance || !heroPower || !mainSquad || !immigrationGrade || !targetAlliance || !note || !file || file.size === 0) {
       return NextResponse.json({ message: '필수 항목이 누락되었습니다.' }, { status: 400 });
     }
+    // --- ▲▲▲ 여기까지 ▲▲▲ ---
 
     let imageUrl: string | null = null;
     if (file && file.size > 0) {
@@ -30,24 +31,15 @@ export async function POST(req: NextRequest) {
       imageUrl = blob.url;
     }
 
-    // --- ▼▼▼ 여기가 수정된 부분입니다 ▼▼▼ ---
     const newEntry: Application = {
-      nickname,
-      currentServerAndAlliance,
-      heroPower,
-      mainSquad,
-      immigrationGrade,
-      targetAlliance,
-      note,
+      nickname, currentServerAndAlliance, heroPower, mainSquad, immigrationGrade, targetAlliance, note,
       image: imageUrl,
       createdAt: new Date().toISOString(),
-      isConfirmed: false,   // << 신규 >> 확인 여부 기본값 false
-      status: '대기중',     // << 신규 >> 상태 기본값 '대기중'
+      isConfirmed: false,
+      status: '대기중',
     };
-    // --- ▲▲▲ 여기까지 ▲▲▲ ---
     
     const applications = await kv.get<Application[]>('applications') || [];
-    
     applications.push(newEntry);
     await kv.set('applications', applications);
 

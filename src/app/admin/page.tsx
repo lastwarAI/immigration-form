@@ -1,39 +1,43 @@
-// src/app/admin/page.tsx 전체 코드 (모든 로직 복원됨)
+// src/app/admin/page.tsx 전체 코드 (모든 기능 및 수정사항 최종 반영)
 
 'use client';
 
 import React, { useEffect, useState, FormEvent, useMemo } from 'react';
 import type { Application } from '@/types';
 
+// 코멘트 아이콘 컴포넌트
 const CommentIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mx-auto text-gray-500 hover:text-blue-600 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
   </svg>
 );
 
+// 코멘트 모달(팝업) 컴포넌트
 const CommentModal = ({ isOpen, onClose, comment }: { isOpen: boolean; onClose: () => void; comment: string; }) => {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-lg">
-        <div className="p-4 border-b flex justify-between items-center"><h3 className="text-lg font-semibold">코멘트 / Comment</h3><button onClick={onClose} className="text-gray-400 hover:text-gray-600">×</button></div>
-        <div className="p-6 whitespace-pre-wrap text-gray-700">{comment}</div>
+        <div className="p-4 border-b flex justify-between items-center"><h3 className="text-lg font-semibold">코멘트 / Comment</h3><button onClick={onClose} className="text-gray-400 hover:text-gray-600 font-bold text-xl">×</button></div>
+        <div className="p-6 whitespace-pre-wrap text-gray-700 max-h-80 overflow-y-auto">{comment}</div>
         <div className="p-4 border-t text-right"><button onClick={onClose} className="bg-gray-200 px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-300">닫기 / Close</button></div>
       </div>
     </div>
   );
 };
 
+// 정렬 상태 타입
 type SortConfig = { key: keyof Application | null; direction: 'ascending' | 'descending'; };
 
+// 테이블 순서와 너비를 정의하는 배열
 const TABLE_COLUMNS: { key: keyof Application; label: string; width: string; isNumeric?: boolean }[] = [
-  { key: 'nickname', label: '닉네임<br/>Nickname', width: 'w-1/12' },
-  { key: 'currentServerAndAlliance', label: '서버/연맹<br/>Server/Alliance', width: 'w-1/12' },
-  { key: 'heroPower', label: '영웅 전투력<br/>Hero Power', width: 'w-1/12', isNumeric: true },
-  { key: 'mainSquad', label: '주력 군종<br/>Main Squad', width: 'w-1/12' },
-  { key: 'immigrationGrade', label: '이민 등급<br/>Grade', width: 'w-1/12' },
-  { key: 'targetAlliance', label: '목표 연맹<br/>Target Alliance', width: 'w-1/12' },
-  { key: 'createdAt', label: '신청일<br/>Date', width: 'w-2/12' },
+  { key: 'nickname', label: '닉네임<br/>Nickname', width: 'w-32' },
+  { key: 'currentServerAndAlliance', label: '서버/연맹<br/>Server/Alliance', width: 'w-32' },
+  { key: 'heroPower', label: '영웅 전투력<br/>Hero Power', width: 'w-32', isNumeric: true },
+  { key: 'mainSquad', label: '주력 군종<br/>Main Squad', width: 'w-40' },
+  { key: 'immigrationGrade', label: '이민 등급<br/>Grade', width: 'w-24' },
+  { key: 'targetAlliance', label: '목표 연맹<br/>Target Alliance', width: 'w-32' },
+  { key: 'createdAt', label: '신청일<br/>Date', width: 'w-48' },
 ];
 
 export default function AdminPage() {
@@ -51,7 +55,6 @@ export default function AdminPage() {
     if (savedPassword) { fetchData(savedPassword); }
   }, []);
 
-  // --- ▼▼▼ 여기가 복원된 함수들입니다 ▼▼▼ ---
   const handleLogin = async (event: FormEvent) => {
     event.preventDefault();
     setError('');
@@ -70,10 +73,7 @@ export default function AdminPage() {
     setIsLoading(true);
     try {
       const res = await fetch('/api/applications', { headers: { 'Authorization': `Bearer ${password}` } });
-      if (!res.ok) {
-        setAuthenticated(false);
-        return false;
-      }
+      if (!res.ok) { setAuthenticated(false); return false; }
       const json: Application[] = await res.json();
       const processedData = json.map(app => ({ ...app, isConfirmed: app.isConfirmed ?? false, status: app.status ?? '대기중' }));
       setData(processedData);
@@ -93,8 +93,7 @@ export default function AdminPage() {
       const password = sessionStorage.getItem('admin_password');
       if (!password) throw new Error('인증 정보가 만료되었습니다.');
       const res = await fetch('/api/update-application', { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${password}` }, body: JSON.stringify({ id, updates }) });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.message);
+      if (!res.ok) throw new Error((await res.json()).message);
       setData(currentData => currentData.map(app => (app.createdAt === id ? { ...app, ...updates } : app)));
     } catch (err) {
       alert(`오류: ${err instanceof Error ? err.message : '업데이트 실패'}`);
@@ -107,7 +106,7 @@ export default function AdminPage() {
     try {
       const password = sessionStorage.getItem('admin_password');
       if (!password) throw new Error('인증 정보가 만료되었습니다. 다시 로그인해주세요.');
-      const res = await fetch('/api/delete-application', { method: 'DELETE', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${password}` }, body: JSON.stringify({ id: id }) });
+      const res = await fetch('/api/delete-application', { method: 'DELETE', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${password}` }, body: JSON.stringify({ id }) });
       if (!res.ok) throw new Error((await res.json()).message || '삭제 작업에 실패했습니다.');
       setData(currentData => currentData.filter(app => app.createdAt !== id));
       alert('성공적으로 삭제되었습니다.');
@@ -126,8 +125,7 @@ export default function AdminPage() {
         const password = sessionStorage.getItem('admin_password');
         if (!password) { throw new Error('인증 정보가 없습니다. 다시 로그인해주세요.'); }
         const res = await fetch('/api/reset', { method: 'DELETE', headers: { 'Authorization': `Bearer ${password}` } });
-        const result = await res.json();
-        if (!res.ok) { throw new Error(result.message || '초기화에 실패했습니다.'); }
+        if (!res.ok) { throw new Error((await res.json()).message || '초기화에 실패했습니다.'); }
         alert('모든 데이터가 성공적으로 초기화되었습니다.');
         setData([]);
     } catch (err) {
@@ -178,43 +176,36 @@ export default function AdminPage() {
     return (
       <main className="max-w-md mx-auto p-6 mt-10 text-center bg-white shadow-lg rounded-lg">
         <h1 className="text-2xl font-bold mb-4">관리자 로그인 <span className="text-gray-400">/</span> Admin Login</h1>
-        <form onSubmit={handleLogin}>
-          <input type="password" className="border p-3 w-full mb-4 rounded-md" placeholder="비밀번호 / Password" value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} disabled={isLoading}/>
-          <button type="submit" className="bg-black text-white px-6 py-3 rounded-md w-full font-semibold" disabled={isLoading}>{isLoading ? '확인 중...' : '로그인 / Login'}</button>
-          {error && <p className="text-red-500 mt-4">{error}</p>}
-        </form>
+        <form onSubmit={handleLogin}><input type="password" className="border p-3 w-full mb-4 rounded-md" placeholder="비밀번호 / Password" value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} disabled={isLoading}/><button type="submit" className="bg-black text-white px-6 py-3 rounded-md w-full font-semibold" disabled={isLoading}>{isLoading ? '확인 중...' : '로그인 / Login'}</button>{error && <p className="text-red-500 mt-4">{error}</p>}</form>
       </main>
     );
   }
 
   return (
     <main className="max-w-full mx-auto p-4 sm:p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl sm:text-3xl font-bold">이민 신청자 목록 <span className="text-gray-400 font-normal">/</span> Applicants</h1>
-        <button onClick={handleReset} disabled={isLoading} className="bg-red-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-red-700 disabled:bg-gray-400">전체 초기화 / Reset All</button>
-      </div>
+      <div className="flex justify-between items-center mb-6"><h1 className="text-xl sm:text-3xl font-bold">이민 신청자 목록 <span className="text-gray-400 font-normal">/</span> Applicants</h1><button onClick={handleReset} disabled={isLoading} className="bg-red-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-red-700 disabled:bg-gray-400">전체 초기화 / Reset All</button></div>
       
       <div className="overflow-x-auto shadow-md rounded-lg">
-        <table className="w-full table-fixed border-collapse text-xs sm:text-sm">
+        <table className="min-w-full border-collapse text-xs sm:text-sm">
           <thead className="bg-gray-100">
             <tr>
-              <th className="border px-2 py-2 text-center font-medium text-gray-600 w-16"><button onClick={() => requestSort('isConfirmed')} className='w-full text-center'>확인<br/>Done{sortConfig.key === 'isConfirmed' ? (sortConfig.direction === 'ascending' ? ' ▲' : ' ▼') : ''}</button></th>
+              <th className="border px-2 py-2 text-center font-medium text-gray-600 w-16 sticky left-0 bg-gray-100 z-10"><button onClick={() => requestSort('isConfirmed')} className='w-full text-center'>확인<br/>Done{sortConfig.key === 'isConfirmed' ? (sortConfig.direction === 'ascending' ? ' ▲' : ' ▼') : ''}</button></th>
               <th className="border px-2 py-2 text-left font-medium text-gray-600 w-28"><button onClick={() => requestSort('status')} className='w-full text-left'>상태<br/>Status{sortConfig.key === 'status' ? (sortConfig.direction === 'ascending' ? ' ▲' : ' ▼') : ''}</button></th>
               {TABLE_COLUMNS.map(col => (<th key={col.key} className={`border px-2 py-2 font-medium text-gray-600 ${col.width} ${col.isNumeric ? 'text-right' : 'text-left'}`}><button onClick={() => requestSort(col.key)} className="w-full h-full text-inherit" dangerouslySetInnerHTML={{ __html: col.label + (sortConfig.key === col.key ? (sortConfig.direction === 'ascending' ? ' ▲' : ' ▼') : '') }} /></th>))}
               <th className="border px-2 py-2 font-medium text-gray-600 w-16">코멘트<br/>Note</th>
               <th className="border px-2 py-2 font-medium text-gray-600 w-24">이미지<br/>Image</th>
-              <th className="border px-2 py-2 font-medium text-gray-600 w-20">관리<br/>Manage</th>
+              <th className="border px-2 py-2 font-medium text-gray-600 w-20 sticky right-0 bg-gray-100 z-10">관리<br/>Manage</th>
             </tr>
           </thead>
           <tbody className="bg-white">
             {sortedData.map(row => (
               <tr key={row.createdAt} className={`hover:bg-gray-50 ${row.isConfirmed ? 'bg-green-50' : ''}`}>
-                <td className="border px-2 py-2 text-center"><input type="checkbox" checked={row.isConfirmed} onChange={(e) => handleUpdate(row.createdAt, { isConfirmed: e.target.checked })} className="h-5 w-5" /></td>
+                <td className="border px-2 py-2 text-center sticky left-0 bg-inherit z-10"><input type="checkbox" checked={row.isConfirmed} onChange={(e) => handleUpdate(row.createdAt, { isConfirmed: e.target.checked })} className="h-5 w-5" /></td>
                 <td className="border px-2 py-2 text-center"><select value={row.status} onChange={(e) => handleUpdate(row.createdAt, { status: e.target.value as Application['status']})} className={`w-full p-1 rounded text-xs ${row.status === '승인' ? 'bg-green-200' : row.status === '거절' ? 'bg-red-200' : 'bg-yellow-200'}`}><option value="대기중">대기중 / Pending</option><option value="승인">승인 / Approved</option><option value="거절">거절 / Rejected</option></select></td>
                 {TABLE_COLUMNS.map(col => (<td key={col.key} className={`border px-2 py-2 truncate ${col.isNumeric ? 'text-right' : 'text-left'}`}>{col.key === 'createdAt' ? new Date(row[col.key]).toLocaleString('ko-KR') : row[col.key]}</td>))}
                 <td className="border px-2 py-2 text-center">{row.note && (<button onClick={() => openCommentModal(row.note)} className="w-full"><CommentIcon /></button>)}</td>
                 <td className="border px-2 py-2 text-center align-middle">{row.image ? <a href={row.image} target="_blank" rel="noopener noreferrer"><img src={row.image} alt="ss" className="h-16 w-auto mx-auto"/></a> : 'None'}</td>
-                <td className="border px-2 py-2 text-center"><button onClick={() => handleDelete(row.createdAt)} className="bg-red-500 text-white px-2 py-1 text-xs rounded">Delete</button></td>
+                <td className="border px-2 py-2 text-center sticky right-0 bg-inherit z-10"><button onClick={() => handleDelete(row.createdAt)} className="bg-red-500 text-white px-2 py-1 text-xs rounded">Delete</button></td>
               </tr>
             ))}
             {sortedData.length === 0 && (<tr><td colSpan={TABLE_COLUMNS.length + 5} className="text-center py-10 text-gray-500">데이터가 없습니다. / No data found.</td></tr>)}
