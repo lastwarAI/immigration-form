@@ -1,4 +1,4 @@
-// src/app/admin/page.tsx 전체 코드 (정렬 로직 수정됨)
+// src/app/admin/page.tsx 전체 코드 (빌드 에러 수정됨)
 
 'use client';
 
@@ -25,7 +25,6 @@ export default function AdminPage() {
     }
   }, []);
 
-  // ... (handleLogin, fetchData 등 다른 함수들은 이전과 동일) ...
   const handleLogin = async (event: FormEvent) => {
     event.preventDefault();
     setError('');
@@ -90,7 +89,6 @@ export default function AdminPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('해당 신청을 정말로 삭제하시겠습니까?\nAre you sure you want to delete this application?')) return;
-    // ... (이하 삭제 로직은 이전과 동일)
     setIsLoading(true);
     setError('');
     try {
@@ -100,10 +98,7 @@ export default function AdminPage() {
       }
       const res = await fetch('/api/delete-application', {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${password}`,
-        },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${password}` },
         body: JSON.stringify({ id: id }),
       });
       const result = await res.json();
@@ -124,7 +119,6 @@ export default function AdminPage() {
   const handleReset = async () => {
     if (!confirm('정말로 모든 신청 데이터를 삭제하시겠습니까?\nAre you sure you want to delete ALL application data?')) return;
     if (!confirm('다시 한번 확인합니다. 모든 이미지와 데이터가 영구적으로 삭제됩니다.\nFinal confirmation. All images and data will be permanently deleted.')) return;
-    // ... (리셋 로직은 이전과 동일)
     setIsLoading(true);
     try {
       const password = sessionStorage.getItem('admin_password');
@@ -150,37 +144,32 @@ export default function AdminPage() {
     }
   };
 
-
-  // --- ▼▼▼ 여기가 수정된 부분입니다 (정렬 로직) ▼▼▼ ---
   const sortedData = useMemo(() => {
-    let sortableItems = [...data];
+    // --- ▼▼▼ 여기가 수정된 부분입니다 (let -> const) ▼▼▼ ---
+    const sortableItems = [...data];
+    // --- ▲▲▲ 여기까지 ▲▲▲ ---
     if (sortConfig.key) {
       sortableItems.sort((a, b) => {
         const valA = a[sortConfig.key!];
         const valB = b[sortConfig.key!];
 
         let comparison = 0;
-        // 타입에 따라 안전하게 비교
         if (typeof valA === 'boolean' && typeof valB === 'boolean') {
           comparison = valA === valB ? 0 : valA ? -1 : 1;
         } else if (typeof valA === 'string' && typeof valB === 'string') {
-          // 전투력(heroPower)은 숫자로 변환하여 비교
           if (sortConfig.key === 'heroPower') {
             const numA = parseInt(valA.replace(/,/g, ''), 10) || 0;
             const numB = parseInt(valB.replace(/,/g, ''), 10) || 0;
             comparison = numA > numB ? 1 : numA < numB ? -1 : 0;
           } else {
-            // 나머지 문자열은 localeCompare로 비교
             comparison = valA.localeCompare(valB);
           }
         }
-        
         return sortConfig.direction === 'ascending' ? comparison : -comparison;
       });
     }
     return sortableItems;
   }, [data, sortConfig]);
-  // --- ▲▲▲ 여기까지 ▲▲▲ ---
 
   const requestSort = (key: keyof Application) => {
     let direction: 'ascending' | 'descending' = 'ascending';
@@ -215,7 +204,6 @@ export default function AdminPage() {
         <table className="w-full table-auto border-collapse text-xs sm:text-sm">
           <thead className="bg-gray-100">
             <tr>
-              {/* UI 부분은 변경 없음 */}
               <th className="border px-2 py-2 text-center font-medium text-gray-600">
                 <button onClick={() => requestSort('isConfirmed')} className='w-full text-center'>확인<br/>Done{sortConfig.key === 'isConfirmed' ? (sortConfig.direction === 'ascending' ? ' ▲' : ' ▼') : ''}</button>
               </th>
