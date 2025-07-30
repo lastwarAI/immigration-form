@@ -1,8 +1,11 @@
-// src/types.ts 전체 코드 (updateCount 추가됨)
+// src/types.ts 전체 코드 (applicantId 추가됨)
 
 export type Application = {
+  // --- ▼▼▼ 신규 항목 ▼▼▼ ---
+  applicantId: string; // 각 신청자를 구분하는 고유 ID
+
+  // --- ▼▼▼ 기존 항목 순서 정리 ▼▼▼ ---
   nickname: string;
-  updateCount: number; // << 신규 >> 업데이트 횟수
   isConfirmed: boolean;
   status: '대기중' | '승인' | '거절';
   currentServerAndAlliance: string; 
@@ -12,5 +15,7 @@ export type Application = {
   targetAlliance: string;           
   note: string;
   image?: string | null;
-  createdAt: string;
+  createdAt: string; // 각 '버전'이 생성된 시간
 };
+
+// updateCount는 더 이상 사용하지 않으므로 제거합니다.
